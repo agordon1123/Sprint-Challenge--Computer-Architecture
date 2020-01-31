@@ -158,6 +158,24 @@ class CPU:
                 self.pc += params
                 self.pc += 1
             
+            elif IR == 0b01010101: # JEQ
+                flag = (self.fl & 0b1)
+                if flag:
+                    # jump to the address stored in the given register
+                    self.handle_jmp()
+                else:
+                    self.pc += params
+                    self.pc += 1
+             
+            elif IR == 0b01010110: # JNE
+                flag = (self.fl & 0b1)
+                if not flag:
+                    # jump to the address stored in the given register
+                    self.handle_jmp()
+                else:
+                    self.pc += params
+                    self.pc += 1
+            
             else: # HELPER METHODS
                 self.branchtable[IR]()
                 if not subroutine:
