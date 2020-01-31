@@ -30,6 +30,7 @@ class CPU:
         self.branchtable[0b01000101] = self.push_stack
         self.branchtable[0b01000110] = self.pop_stack
         self.branchtable[0b00011000] = self.mult_2_print
+        self.branchtable[0b01010100] = self.handle_jmp
 
     def load(self):
         """Load a program into memory."""
@@ -198,3 +199,6 @@ class CPU:
     def mult_2_print(self):
         reg = 0
         print(self.reg[reg] * 2)
+
+    def handle_jmp(self):
+        self.pc = self.reg[self.ram[self.pc + 1]]
