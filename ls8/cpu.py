@@ -23,6 +23,7 @@ class CPU:
         self.reg[SP] = 243
         self.ram = [0] * 256
         self.pc = 0
+        self.fl = 0b0
         self.branchtable = {}
         self.branchtable[0b10000010] = self.reg_write
         self.branchtable[0b01000111] = self.print_reg
@@ -58,10 +59,38 @@ class CPU:
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
-        #elif op == "SUB": etc
+        
         elif op == "MUL":
             self.reg[reg_a] *= self.reg[reg_b]
             return self.reg[reg_a]
+        
+        elif op == "CMP":
+            if reg_a == reg_b:
+                # set E flag to true
+                set_bit = (1 | self.fl)
+                self.fl = set_bit
+            else:
+                # set E flag to false
+                set_bit = (0 | self.fl)
+                self.fl = set_bit
+            if reg_a > reg_b:
+                # set G flag to true
+                set_bit = (1 << 1 | self.fl)
+                self.fl = set_bit
+            else:
+                # set G flag to false
+                self.fl = self.fl | 0b0
+                set_bit = (0 << 1 | self.fl)
+                self.fl = set_bit
+            if reg_a < reg_b:
+                # set L flag to true
+                set_bit = (1 << 2 | self.fl)
+                self.fl = set_bit
+            else:
+                # set L flag to false
+                set_bit = (0 << 2 | self.fl)
+                self.fl = set_bit
+
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -120,6 +149,11 @@ class CPU:
             
             elif IR == 0b10100000: # ADD
                 self.alu("ADD", self.ram[self.pc + 1], self.ram[self.pc + 2])
+                self.pc += params
+                self.pc += 1
+                            
+            elif IR == 0b10100111: #CMP
+                self.alu("CMP", self.reg[self.ram[self.pc + 1]], self.reg[self.ram[self.pc + 2]])
                 self.pc += params
                 self.pc += 1
             
